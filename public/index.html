@@ -6,56 +6,119 @@
     <title>Vérificateur de domaines</title>
     <style>
       :root {
-        --bg: #0f172a;
-        --panel: #111827;
-        --card: #1f2937;
-        --text: #e5e7eb;
-        --muted: #9ca3af;
-        --primary: #3b82f6;
-        --success: #22c55e;
-        --danger: #ef4444;
-        --border: #374151;
+        --bg: #07111f;
+        --bg-2: #0f1d2d;
+        --panel: rgba(18, 31, 46, 0.94);
+        --panel-strong: #101d2f;
+        --card: rgba(23, 38, 54, 0.92);
+        --card-soft: rgba(30, 46, 64, 0.8);
+        --text: #ecf3ff;
+        --muted: #9eb0c9;
+        --primary: #4f8ef7;
+        --primary-2: #7cc7ff;
+        --success: #39d98a;
+        --success-soft: rgba(57, 217, 138, 0.14);
+        --danger: #ff6b6b;
+        --danger-soft: rgba(255, 107, 107, 0.14);
+        --border: rgba(255,255,255,0.08);
+        --shadow: 0 22px 50px rgba(3, 8, 18, 0.42);
       }
 
       * { box-sizing: border-box; }
 
-      body {
+      html, body {
         margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: var(--bg);
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(79, 142, 247, 0.14), transparent 30%),
+          radial-gradient(circle at bottom right, rgba(124, 199, 255, 0.08), transparent 35%),
+          linear-gradient(180deg, var(--bg), var(--bg-2));
         color: var(--text);
       }
 
       .container {
-        max-width: 1200px;
+        max-width: 1180px;
         margin: 40px auto;
-        padding: 20px;
+        padding: 24px;
       }
 
       .panel {
         background: var(--panel);
         border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
       }
 
       h1 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 28px;
+        margin: 0;
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        letter-spacing: -0.04em;
+      }
+
+      .header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(79,142,247,0.25);
+        background: rgba(79,142,247,0.08);
+        color: var(--primary-2);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .header-badge::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 0 5px rgba(57, 217, 138, 0.18);
+      }
+
+      .input-shell {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 14px;
       }
 
       textarea {
         width: 100%;
         min-height: 220px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        background: rgba(9,16,24,0.72);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 14px;
         color: var(--text);
-        padding: 16px;
+        padding: 16px 18px;
         font-size: 14px;
+        line-height: 1.6;
         resize: vertical;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      textarea:focus {
+        border-color: rgba(79,142,247,0.7);
+        box-shadow: 0 0 0 4px rgba(79,142,247,0.12);
       }
 
       .actions {
@@ -66,54 +129,150 @@
       }
 
       button {
-        cursor: pointer;
         border: none;
-        border-radius: 8px;
-        padding: 12px 20px;
+        border-radius: 12px;
+        padding: 14px 18px;
         font-size: 15px;
-        font-weight: 600;
-        background: var(--primary);
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      #checkBtn {
+        background: linear-gradient(135deg, var(--primary), #5ca5ff);
         color: white;
+        box-shadow: 0 12px 24px rgba(79,142,247,0.28);
       }
 
       .secondary {
-        background: #374151;
+        background: rgba(255,255,255,0.04);
+        color: var(--text);
+        border: 1px solid var(--border);
       }
 
       .summary {
-        margin-top: 24px;
+        margin-top: 26px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 16px;
       }
 
       .stat {
-        background: var(--card);
+        background: linear-gradient(180deg, rgba(30,46,64,0.95), rgba(19,31,45,0.9));
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 16px;
+        border-radius: 16px;
+        padding: 18px 16px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
       }
 
       .stat .label {
         color: var(--muted);
-        font-size: 13px;
-        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
       }
 
       .stat .value {
-        font-size: 28px;
-        font-weight: bold;
+        font-size: clamp(2rem, 5vw, 2.7rem);
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .progress-wrapper {
+        display: none;
+        margin-top: 22px;
+        background: linear-gradient(180deg, rgba(26,39,55,0.95), rgba(15,25,36,0.9));
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 18px 16px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      }
+
+      .progress-wrapper.visible {
+        display: block;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .progress-track {
+        position: relative;
+        width: 100%;
+        height: 20px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        position: relative;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, rgba(79,142,247,1), rgba(124,199,255,1));
+        border-radius: inherit;
+        box-shadow: 0 0 18px rgba(124,199,255,0.5);
+        transition: width 0.3s ease;
+      }
+
+      .progress-fill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
+      }
+
+      .progress-status {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .progress-status strong {
+        color: var(--text);
+      }
+
+      .counter-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 76px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(79,142,247,0.12);
+        color: var(--primary-2);
+        border: 1px solid rgba(79,142,247,0.3);
+        font-weight: 800;
+        font-size: 12px;
       }
 
       .result-box {
-        margin-top: 24px;
-        background: var(--card);
+        margin-top: 26px;
+        background: rgba(17,27,39,0.84);
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 16px;
+        border-radius: 18px;
+        padding: 18px;
       }
 
-      pre {
+      .result-box pre {
+        margin: 0;
         white-space: pre-wrap;
         word-break: break-word;
         font-size: 13px;
@@ -122,34 +281,29 @@
 
       .status {
         display: inline-block;
-        padding: 6px 10px;
+        padding: 7px 12px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: bold;
+        font-weight: 700;
         margin-right: 8px;
       }
 
-      .status.ok { background: rgba(34,197,94,0.2); color: var(--success); }
-      .status.bad { background: rgba(239,68,68,0.2); color: var(--danger); }
+      .status.ok { background: var(--success-soft); color: var(--success); }
+      .status.bad { background: var(--danger-soft); color: var(--danger); }
 
       .result-layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 18px;
         margin-top: 16px;
       }
 
       .list-panel {
-        background: var(--card);
+        background: rgba(12,19,28,0.7);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 14px;
         padding: 16px;
-        min-height: 220px;
-      }
-
-      .list-panel h3 {
-        margin: 0 0 12px 0;
-        font-size: 18px;
+        min-height: 240px;
       }
 
       .list-panel ul {
@@ -164,142 +318,84 @@
       .list-panel li {
         background: rgba(255,255,255,0.02);
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 10px 12px;
+        border-radius: 10px;
+        padding: 12px;
         word-break: break-all;
         font-size: 14px;
         line-height: 1.5;
       }
 
       .list-panel .ok {
-        border-color: rgba(34,197,94,0.6);
+        border-color: rgba(57, 217, 138, 0.5);
       }
 
       .list-panel .ko {
-        border-color: rgba(239,68,68,0.8);
+        border-color: rgba(255,107,107,0.7);
       }
 
       .list-panel .badge {
-        display: inline-block;
-        margin-bottom: 8px;
-        padding: 4px 8px;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 6px 10px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
       .badge.ok {
-        background: rgba(34,197,94,0.15);
+        background: var(--success-soft);
         color: var(--success);
       }
 
       .badge.ko {
-        background: rgba(239,68,68,0.15);
+        background: var(--danger-soft);
         color: var(--danger);
       }
 
-      @media (max-width: 760px) {
-        .result-layout {
-          grid-template-columns: 1fr;
-        }
-      }
-
       .result-json {
-        margin-top: 16px;
-        background: var(--card);
+        margin-top: 18px;
+        background: rgba(7, 13, 21, 0.9);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 14px;
         padding: 16px;
       }
 
-      .result-json pre {
-        margin: 0;
+      button:disabled {
+        opacity: 0.75;
+        cursor: wait;
+      }
+
+      @media (max-width: 760px) {
+        .panel { padding: 18px; }
+        .result-layout { grid-template-columns: 1fr; }
       }
 
       @media (max-width: 640px) {
         .container { padding: 12px; }
-        .panel { padding: 16px; }
-      }
-
-      .progress-wrapper {
-        display: none;
-        margin-top: 18px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 16px;
-      }
-
-      .progress-wrapper.visible {
-        display: block;
-      }
-
-      .progress-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 10px;
-        font-size: 14px;
-        color: var(--muted);
-      }
-
-      .progress-track {
-        width: 100%;
-        height: 18px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        overflow: hidden;
-      }
-
-      .progress-fill {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary), #60a5fa);
-        border-radius: 999px;
-        transition: width 0.25s ease;
-      }
-
-      .progress-status {
-        margin-top: 10px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-
-      .progress-status strong {
-        color: var(--text);
-      }
-
-      .counter-chip {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 76px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(59,130,246,0.12);
-        color: var(--primary);
-        border: 1px solid rgba(59,130,246,0.3);
-        font-weight: 700;
-      }
-
-      button:disabled {
-        opacity: 0.7;
-        cursor: wait;
+        .panel { padding: 14px; }
+        .actions { flex-direction: column; }
+        button { width: 100%; }
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="panel">
-        <h1>Test de domaines</h1>
+        <div class="page-header">
+          <h1>Vérificateur de domaines</h1>
+          <span class="header-badge">Live check</span>
+        </div>
 
-        <textarea id="domainInput">[
+        <div class="input-shell">
+          <textarea id="domainInput">[
   { "domain": "https://dtradn.teste.cn?code=1234456" },
   { "domain": "https://dtradn.dfsdf.cn" },
   { "domain": "https://example.com" }
 ]</textarea>
+        </div>
 
         <div class="actions">
           <button id="checkBtn">Tester les liens</button>
@@ -362,12 +458,18 @@
       const progressStatusText = document.getElementById('progressStatusText');
       const checkBtn = document.getElementById('checkBtn');
 
-      function updateProgress(percent, label, progressText = '') {
+      function updateProgress(percent, label, progressText = '', counterText = null) {
+        const safePercent = Math.max(0, Math.min(100, percent));
         progressLabel.textContent = label;
-        progressPercent.textContent = `${Math.round(percent)}%`;
-        progressFill.style.width = `${percent}%`;
+        progressPercent.textContent = `${Math.round(safePercent)}%`;
+        progressFill.style.width = `${safePercent}%`;
+
         if (progressText) {
           progressStatusText.textContent = progressText;
+        }
+
+        if (counterText !== null) {
+          progressCounter.textContent = counterText;
         }
       }
 
@@ -438,10 +540,8 @@
 
           checkBtn.disabled = true;
           showProgress();
-          updateProgress(5, 'Préparation du test', 'Validation de la liste en cours...');
-
           const total = items.length;
-          progressCounter.textContent = `0 / ${total}`;
+          updateProgress(0, 'Préparation du test', 'Validation de la liste en cours...', `0 / ${total}`);
 
           const response = await fetch('/api/check-domains', {
             method: 'POST',
@@ -459,15 +559,14 @@
           accessibleCount.textContent = data.summary.accessible;
           inaccessibleCount.textContent = data.summary.inaccessible;
 
-          updateProgress(100, 'Test terminé', `Résultats générés : ${data.summary.accessible} accessibles / ${data.summary.inaccessible} inaccessibles`);
+          updateProgress(100, 'Test terminé', `Résultats générés : ${data.summary.accessible} accessibles / ${data.summary.inaccessible} inaccessibles`, `${total} / ${total}`);
           resultOutput.innerHTML = renderLists(data);
-          progressCounter.textContent = `${total} / ${total}`;
-          setTimeout(() => hideProgress(), 1200);
+          setTimeout(() => hideProgress(), 1400);
         } catch (error) {
           totalCount.textContent = '0';
           accessibleCount.textContent = '0';
           inaccessibleCount.textContent = '0';
-          updateProgress(0, 'Erreur', 'Le test a échoué');
+          updateProgress(0, 'Erreur', 'Le test a échoué', '0 / 0');
           hideProgress();
           resultOutput.innerHTML = `<pre>Erreur : ${error.message}</pre>`;
         } finally {
