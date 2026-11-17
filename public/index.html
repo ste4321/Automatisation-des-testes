@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vérificateur de domaines</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --card: #1f2937;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --primary: #3b82f6;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --border: #374151;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      }
+
+      h1 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 220px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        padding: 16px;
+        font-size: 14px;
+        resize: vertical;
+      }
+
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        background: var(--primary);
+        color: white;
+      }
+
+      .secondary {
+        background: #374151;
+      }
+
+      .summary {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .stat .label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .stat .value {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .result-box {
+        margin-top: 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 13px;
+        color: var(--text);
+      }
+
+      .status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+
+      .status.ok { background: rgba(34,197,94,0.2); color: var(--success); }
+      .status.bad { background: rgba(239,68,68,0.2); color: var(--danger); }
+
+      .result-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .list-panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        min-height: 220px;
+      }
+
+      .list-panel h3 {
+        margin: 0 0 12px 0;
+        font-size: 18px;
+      }
+
+      .list-panel ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .list-panel li {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        word-break: break-all;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .list-panel .ok {
+        border-color: rgba(34,197,94,0.6);
+      }
+
+      .list-panel .ko {
+        border-color: rgba(239,68,68,0.8);
+      }
+
+      .list-panel .badge {
+        display: inline-block;
+        margin-bottom: 8px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .badge.ok {
+        background: rgba(34,197,94,0.15);
+        color: var(--success);
+      }
+
+      .badge.ko {
+        background: rgba(239,68,68,0.15);
+        color: var(--danger);
+      }
+
+      @media (max-width: 760px) {
+        .result-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .result-json {
+        margin-top: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .result-json pre {
+        margin: 0;
+      }
+
+      @media (max-width: 640px) {
+        .container { padding: 12px; }
+        .panel { padding: 16px; }
+      }
+
+      .progress-wrapper {
+        display: none;
+        margin-top: 18px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .progress-wrapper.visible {
+        display: block;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 18px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), #60a5fa);
+        border-radius: 999px;
+        transition: width 0.25s ease;
+      }
+
+      .progress-status {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .progress-status strong {
+        color: var(--text);
+      }
+
+      .counter-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 76px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(59,130,246,0.12);
+        color: var(--primary);
+        border: 1px solid rgba(59,130,246,0.3);
+        font-weight: 700;
+      }
+
+      button:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel">
+        <h1>Test de domaines</h1>
+
+        <textarea id="domainInput">[
+  { "domain": "https://dtradn.teste.cn?code=1234456" },
+  { "domain": "https://dtradn.dfsdf.cn" },
+  { "domain": "https://example.com" }
+]</textarea>
+
+        <div class="actions">
+          <button id="checkBtn">Tester les liens</button>
+          <button class="secondary" id="sampleBtn">Exemple</button>
+        </div>
+
+        <div id="progressWrapper" class="progress-wrapper">
+          <div class="progress-header">
+            <span id="progressLabel">Vérification en cours...</span>
+            <span class="counter-chip" id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div class="progress-header" style="margin-top:10px; margin-bottom:0;">
+            <span class="progress-status"><strong id="progressStatusText">Préparation du test...</strong></span>
+            <span class="counter-chip" id="progressCounter">0 / 0</span>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="stat">
+            <div class="label">Total</div>
+            <div class="value" id="totalCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Accessibles</div>
+            <div class="value" id="accessibleCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Inaccessibles</div>
+            <div class="value" id="inaccessibleCount">0</div>
+          </div>
+        </div>
+
+        <div class="result-box">
+          <div id="resultOutput"><pre>Le rapport apparaîtra ici.</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const sample = `[
+  { "domain": "https://dtradn.teste.cn?code=1234456" },
+  { "domain": "https://dtradn.dfsdf.cn" },
+  { "domain": "https://example.com" },
+  { "domain": "https://www.google.com" }
+]`;
+
+      const input = document.getElementById('domainInput');
+      const resultOutput = document.getElementById('resultOutput');
+      const totalCount = document.getElementById('totalCount');
+      const accessibleCount = document.getElementById('accessibleCount');
+      const inaccessibleCount = document.getElementById('inaccessibleCount');
+      const progressWrapper = document.getElementById('progressWrapper');
+      const progressLabel = document.getElementById('progressLabel');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressFill = document.getElementById('progressFill');
+      const progressCounter = document.getElementById('progressCounter');
+      const progressStatusText = document.getElementById('progressStatusText');
+      const checkBtn = document.getElementById('checkBtn');
+
+      function updateProgress(percent, label, progressText = '') {
+        progressLabel.textContent = label;
+        progressPercent.textContent = `${Math.round(percent)}%`;
+        progressFill.style.width = `${percent}%`;
+        if (progressText) {
+          progressStatusText.textContent = progressText;
+        }
+      }
+
+      function showProgress() {
+        progressWrapper.classList.add('visible');
+      }
+
+      function hideProgress() {
+        progressWrapper.classList.remove('visible');
+      }
+
+      function renderLists(data) {
+        const accessible = data.accessible || [];
+        const inaccessible = data.inaccessible || [];
+
+        const renderList = (items, type) => {
+          if (!items.length) {
+            return `<li style="opacity:0.7;">Aucun domaine ${type === 'ok' ? 'accessible' : 'inaccessible'}.</li>`;
+          }
+
+          return items.map(item => `
+            <li class="${type === 'ok' ? 'ok' : 'ko'}">
+              ${item.domain}
+            </li>
+          `).join('');
+        };
+
+        return `
+          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+            <span class="status ok">Accessibles: ${data.summary.accessible}</span>
+            <span class="status bad">Inaccessibles: ${data.summary.inaccessible}</span>
+          </div>
+
+          <div class="result-layout">
+            <div class="list-panel">
+              <span class="badge ok">Accessibles</span>
+              <ul>${renderList(accessible, 'ok')}</ul>
+            </div>
+            <div class="list-panel">
+              <span class="badge ko">Inaccessibles</span>
+              <ul>${renderList(inaccessible, 'ko')}</ul>
+            </div>
+          </div>
+
+          <div class="result-json">
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          </div>
+        `;
+      }
+
+      document.getElementById('sampleBtn').addEventListener('click', () => {
+        input.value = sample;
+      });
+
+      document.getElementById('checkBtn').addEventListener('click', async () => {
+        try {
+          const raw = input.value.trim();
+          if (!raw) {
+            throw new Error('Le champ JSON est vide.');
+          }
+
+          const payload = JSON.parse(raw);
+          const items = Array.isArray(payload) ? payload : (payload && Array.isArray(payload.domains) ? payload.domains : []);
+
+          if (!items.length) {
+            throw new Error('Aucune liste de domaines détectée.');
+          }
+
+          checkBtn.disabled = true;
+          showProgress();
+          updateProgress(5, 'Préparation du test', 'Validation de la liste en cours...');
+
+          const total = items.length;
+          progressCounter.textContent = `0 / ${total}`;
+
+          const response = await fetch('/api/check-domains', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Erreur lors du traitement');
+          }
+
+          totalCount.textContent = data.summary.total;
+          accessibleCount.textContent = data.summary.accessible;
+          inaccessibleCount.textContent = data.summary.inaccessible;
+
+          updateProgress(100, 'Test terminé', `Résultats générés : ${data.summary.accessible} accessibles / ${data.summary.inaccessible} inaccessibles`);
+          resultOutput.innerHTML = renderLists(data);
+          progressCounter.textContent = `${total} / ${total}`;
+          setTimeout(() => hideProgress(), 1200);
+        } catch (error) {
+          totalCount.textContent = '0';
+          accessibleCount.textContent = '0';
+          inaccessibleCount.textContent = '0';
+          updateProgress(0, 'Erreur', 'Le test a échoué');
+          hideProgress();
+          resultOutput.innerHTML = `<pre>Erreur : ${error.message}</pre>`;
+        } finally {
+          checkBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

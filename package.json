@@ -1,0 +1,13 @@
+{
+  "name": "domain-checker-app",
+  "version": "1.0.0",
+  "description": "Application locale pour vérifier des liens de domaines et retourner les résultats JSON",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "express": "^4.21.2"
+  }
+}
